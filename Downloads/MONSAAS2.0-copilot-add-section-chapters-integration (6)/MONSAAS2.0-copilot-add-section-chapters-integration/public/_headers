@@ -1,0 +1,31 @@
+/*
+  X-Content-Type-Options: nosniff
+  X-Frame-Options: SAMEORIGIN
+  X-XSS-Protection: 1; mode=block
+  Referrer-Policy: strict-origin-when-cross-origin
+  Permissions-Policy: camera=(), microphone=(), geolocation=()
+  Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://challenges.cloudflare.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https: blob:; frame-src https://eed972db.aurion-ide.pages.dev https://production.ai-assistant-xlv.pages.dev https://flo-9xh2.onrender.com https://canvchat-1-y73q.onrender.com https://tersa-main-b5f0ey7pq-launchmateais-projects.vercel.app https://4e2af144.aieditor.pages.dev https://www.google.com; connect-src 'self' https://*.supabase.co wss://*.supabase.co https://eed972db.aurion-ide.pages.dev https://production.ai-assistant-xlv.pages.dev https://flo-9xh2.onrender.com https://canvchat-1-y73q.onrender.com https://tersa-main-b5f0ey7pq-launchmateais-projects.vercel.app https://4e2af144.aieditor.pages.dev; worker-src 'self' blob:; object-src 'none'; base-uri 'self'; form-action 'self'
+  
+/*.html
+  Cache-Control: no-cache
+
+/assets/*
+  Cache-Control: public, max-age=31536000, immutable
+
+/*.js
+  Cache-Control: public, max-age=31536000, immutable
+
+/*.css
+  Cache-Control: public, max-age=31536000, immutable
+
+/*.woff2
+  Cache-Control: public, max-age=31536000, immutable
+
+/*.png
+  Cache-Control: public, max-age=604800
+
+/*.jpg
+  Cache-Control: public, max-age=604800
+
+/*.svg
+  Cache-Control: public, max-age=604800

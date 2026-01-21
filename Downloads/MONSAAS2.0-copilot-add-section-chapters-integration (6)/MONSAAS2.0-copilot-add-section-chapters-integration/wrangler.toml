@@ -1,0 +1,5 @@
+# Cloudflare Pages Configuration
+name = "aurion-studio-live"
+pages_build_output_dir = "dist"
+
+# Security headers are configured in public/_headers file
