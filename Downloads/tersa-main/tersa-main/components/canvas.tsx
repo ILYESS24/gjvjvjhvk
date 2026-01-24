@@ -77,7 +77,15 @@ export const Canvas = ({ children, ...props }: ReactFlowProps) => {
   const analytics = useAnalytics();
   const [saveState, setSaveState] = useSaveProject();
 
+  // Check if we're in demo mode (no saving)
+  const isDemoMode = project?.id?.startsWith("demo-") || project?.userId?.startsWith("demo-");
+
   const save = useDebouncedCallback(async () => {
+    // Skip saving in demo mode
+    if (isDemoMode) {
+      return;
+    }
+
     // Validate project context before saving
     if (saveState.isSaving) {
       return;
