@@ -10,7 +10,6 @@ import { gateway } from "@/lib/gateway";
 import { logger } from "@/lib/logger";
 import { checkRateLimit, rateLimitResponse } from "@/lib/rate-limit";
 import { trackCreditUsage } from "@/lib/stripe";
-import { chatRequestSchema, validateRequest } from "@/lib/validation";
 
 // Allow streaming responses up to 30 seconds
 export const maxDuration = 30;
@@ -33,14 +32,26 @@ export const POST = async (req: Request) => {
       return rateLimitResponse(rateLimitResult.reset);
     }
 
-    // Validate request body
-    const validation = await validateRequest(req, chatRequestSchema);
-    if (!validation.success) {
-      logger.warn("Validation failed", { userId, error: validation.error });
-      return new Response(validation.error, { status: 400 });
+    // Parse request body
+    let body: { messages: unknown; modelId: unknown };
+    try {
+      body = await req.json();
+    } catch {
+      return new Response("Invalid JSON body", { status: 400 });
     }
 
-    const { messages, modelId } = validation.data;
+    const { messages, modelId } = body;
+
+    // Basic validation
+    if (!Array.isArray(messages) || messages.length === 0) {
+      logger.warn("Validation failed", { userId, error: "messages must be a non-empty array" });
+      return new Response("messages must be a non-empty array", { status: 400 });
+    }
+
+    if (typeof modelId !== "string" || modelId.length === 0) {
+      logger.warn("Validation failed", { userId, error: "modelId must be a non-empty string" });
+      return new Response("modelId must be a non-empty string", { status: 400 });
+    }
 
     logger.apiRequest("/api/chat", "POST", userId, { modelId });
 
@@ -68,7 +79,8 @@ export const POST = async (req: Request) => {
         "You will then synthesize the content based on the user's instructions and the context provided.",
         "The output should be a concise summary of the content, no more than 100 words.",
       ].join("\n"),
-      messages: convertToModelMessages(messages),
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      messages: convertToModelMessages(messages as any),
       onError: (error) => {
         logger.apiError("/api/chat", error instanceof Error ? error : new Error(String(error)), userId);
       },

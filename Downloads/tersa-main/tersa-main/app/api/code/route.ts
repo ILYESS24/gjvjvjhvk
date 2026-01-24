@@ -10,7 +10,6 @@ import { gateway } from "@/lib/gateway";
 import { logger } from "@/lib/logger";
 import { checkRateLimit, rateLimitResponse } from "@/lib/rate-limit";
 import { trackCreditUsage } from "@/lib/stripe";
-import { codeRequestSchema, validateRequest } from "@/lib/validation";
 
 // Allow streaming responses up to 30 seconds
 export const maxDuration = 30;
@@ -33,14 +32,26 @@ export const POST = async (req: Request) => {
       return rateLimitResponse(rateLimitResult.reset);
     }
 
-    // Validate request body
-    const validation = await validateRequest(req, codeRequestSchema);
-    if (!validation.success) {
-      logger.warn("Validation failed", { userId, error: validation.error });
-      return new Response(validation.error, { status: 400 });
+    // Parse request body
+    let body: { messages: unknown; modelId: unknown; language?: unknown };
+    try {
+      body = await req.json();
+    } catch {
+      return new Response("Invalid JSON body", { status: 400 });
     }
 
-    const { messages, modelId, language } = validation.data;
+    const { messages, modelId, language } = body;
+
+    // Basic validation
+    if (!Array.isArray(messages) || messages.length === 0) {
+      logger.warn("Validation failed", { userId, error: "messages must be a non-empty array" });
+      return new Response("messages must be a non-empty array", { status: 400 });
+    }
+
+    if (typeof modelId !== "string" || modelId.length === 0) {
+      logger.warn("Validation failed", { userId, error: "modelId must be a non-empty string" });
+      return new Response("modelId must be a non-empty string", { status: 400 });
+    }
 
     logger.apiRequest("/api/code", "POST", userId, { modelId, language });
 
@@ -59,12 +70,13 @@ export const POST = async (req: Request) => {
     const result = streamText({
       model: enhancedModel,
       system: [
-        `Output the code in the language specified: ${language ?? "javascript"}`,
+        `Output the code in the language specified: ${typeof language === "string" ? language : "javascript"}`,
         "If the user specifies an output language in the context below, ignore it.",
         "Respond with the code only, no other text.",
         "Do not format the code as Markdown, just return the code as is.",
       ].join("\n"),
-      messages: convertToModelMessages(messages),
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      messages: convertToModelMessages(messages as any),
       onError: (error) => {
         logger.apiError("/api/code", error instanceof Error ? error : new Error(String(error)), userId);
       },
