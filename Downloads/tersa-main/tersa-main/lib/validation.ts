@@ -48,7 +48,7 @@ export async function validateRequest<T>(
     const result = schema.safeParse(body);
     
     if (!result.success) {
-      const errors = result.error.errors
+      const errors = result.error.issues
         .map((e) => `${e.path.join(".")}: ${e.message}`)
         .join(", ");
       return { success: false, error: `Validation failed: ${errors}` };
