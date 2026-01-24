@@ -51,12 +51,6 @@ const Index = async () => {
                   <Toolbar />
                 </Canvas>
               </ProjectProvider>
-              {/* Demo mode banner */}
-              <div className="absolute top-4 left-1/2 -translate-x-1/2 z-50">
-                <div className="bg-primary/90 text-primary-foreground px-4 py-2 rounded-full text-sm font-medium shadow-lg backdrop-blur">
-                  Mode Démo - <a href="/auth/sign-up" className="underline hover:no-underline">Créez un compte</a> pour sauvegarder vos projets
-                </div>
-              </div>
             </div>
           </div>
         </ReactFlowProvider>
